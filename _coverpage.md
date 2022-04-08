@@ -1,4 +1,4 @@
-![](./_media/logo.svg)
+<img src="_media/logo.svg" alt="logo" style="width:280px;"/>
 
 > Java 世界中又一个简单的 DB Helper
 
