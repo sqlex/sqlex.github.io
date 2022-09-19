@@ -37,7 +37,7 @@ plugin {
 }
 
 dependencies {
-    implatetions 'me.danwi.sqlex:core' //这里无须填写版本号,会由插件来自动配置
+    implementation 'me.danwi.sqlex:core' //这里无须填写版本号,会由插件来自动配置
     implementation 'mysql:mysql-connector-java:8.0.29'
 }
 ```
