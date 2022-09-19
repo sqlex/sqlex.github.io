@@ -18,7 +18,7 @@ SqlEx (SQL extension) 是一个简单的 DB helper.
 ### IDEA 插件安装
 
 SqlEx 的编辑体验**严重**依赖于 IDEA 插件, 插件提供了诸如 `智能提示`,`错误感知` 等功能.  
-插件可以在 **IDEA 内置插件管理器** 或者 [官方插件市场](https://plugins.jetbrains.com/plugin/19025-sqlex) 下载安装.
+插件可以在 **IDEA 内置插件管理器**(搜索sqlex) 或者 [官方插件市场](https://plugins.jetbrains.com/plugin/19025-sqlex) 下载安装.
 
 **!!强烈建议先安装 IDEA 插件!!**
 
