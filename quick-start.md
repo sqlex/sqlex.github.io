@@ -4,7 +4,7 @@
 
 SqlEx (SQL extension) 是一个简单的 DB helper.  
 从实际应用角度出发, 解决编程语言(Java)和关系型数据库之间对于类型和结构认知不匹配的问题.  
-主要思路是通过对数据库结构和 SQL 做语义分析, 依据分析得出的结果, 生成对应的类型. 提供`强类型安全`的编程体验.  
+主要思路是通过对数据库结构和 SQL 做语义分析, 依据分析得出的结果, 生成对应的结果类型. 提供`强类型安全`的编程体验.  
 将大部分错误从`运行时`前推到`编译时`/从`编译时`前推到`编辑时`, 保证错误写法有提示, 错误写法无法编译通过, 能编译通过进运行环境的程序不会出现数据库结构/类型错误.
 
 ### 支持范围
@@ -201,10 +201,72 @@ long affectedRows = personTable.update().setName("sqlex").where(PersonTable.Id.e
 
 针对 `kotlin` 语言, SqlEx 提供了部分语法糖, 能让 `where` 方法中的条件表达式写起来更加优雅.
 
+### 数据库结构变更
+
+随着业务的变化, 数据库的结构可能会产生变化, 比如新增了 `部门` 这个实体. 我们可以通过如下几步完成该变更:
+
+1. 增加部门表, Person 表中添加部门 id.  
+   新建一个版本 1 的数据库迁移文件, `001-add-department.sqls`, 然后刷新 SqlEx 索引.
+
+```sql
+# 创建department表
+create table department
+(
+    id   integer auto_increment primary key,
+    name varchar(255) not null
+);
+
+# 给person表添加部门ID
+alter table person
+    add column depart_id integer not null;
+```
+
+2. 编写业务 SQL  
+   假设我们有一个业务需要统计各个部门的人数, 显而易见, 其 SQL 为:
+
+```sql
+select d.name, count(1) as count
+from person p
+         left join department d on p.depart_id = d.id
+group by d.id
+```
+
+返回结果有两个字段, 一个 name(字符串), 一个 count(数字).  
+我们将其通过`SqlEx Method`来实现, 继续在 `PersonDao.sqlm` 增加一个方法:
+
+```
+countByDepartment() {
+    select d.name, count(1) as count
+    from person p
+             left join department d on p.depart_id = d.id
+    group by d.id
+}
+```
+
+然后在 Java 中调用
+
+```java
+List<PersonDao.CountByDepartmentResult> countResult = personDao.countByDepartment();
+PersonDao.CountByDepartmentResult result = countResult.get(0);
+String name = result.getName(); //name字段, 类型为String
+Long count = result.getCount(); //count字段, 类型为Long
+```
+
+如上代码所示, 框架会自动生成 `PersonDao.CountByDepartmentResult` 实体类, 其属性的名称/类型均与 `SQL` 一一对应.
+
+随着后面业务的继续变更, 数据库的结构也会继续产生变化, 但是不管如何变化. 在程序编译时, SqlEx 会根据最新的数据库结构信息来分析所有的 SQL. 保证字段的存在和类型的安全.  
+当出现如下破坏性变更时:
+
+- 删除了某个字段, 但是 SQL / Java 中还在使用
+- 修改了字段的类型, 但是 Java 还以旧的认知在使用
+
+程序编译时会发生编译错误, 只能挨个修复完毕才能保证编译通过, 最大程序保证了程序的运行时安全.  
+再也不会出现一个复杂 SQL 需要写一个实体类来手动映射(或者写一个大而全的 Fat Class), 也不怕删改字段了. 全面提升对于数据库的掌控程度.
+
 ### 总结
 
 通过上面一个 "无用且蛋疼" 的例子, 简单介绍了 SqlEx 的设计.
 
-你可以根据自己实际的项目需求, 创建多个迁移脚本(如 001-add-age-to-person.sqls), 或者创建一个复杂的 `join`/`groupby` 查询. 体验一下 SqlEx 框架自动(`分析`/`生成`/`强类型安全`)的魅力.
+你可以根据自己实际的项目需求, 创建多个迁移脚本(如 002-add-age-to-person.sqls), 或者创建一个复杂的 `join`/`groupby` 查询. 体验一下 SqlEx 框架自动(`分析`/`生成`/`强类型安全`)的魅力.
 
-也可以访问 [Gradle Example](https://github.com/sqlex/gradle-example), [Maven Example](https://github.com/sqlex/maven-example) 学习 SqlEx 的基本用法. 另外框架也对 SpringBoot 做了集成, 可以访问 [Spring Example](https://github.com/sqlex/spring-example) 了解具体集成的方法.
+也可以访问 [Gradle Example(更全面)](https://github.com/sqlex/gradle-example), [Maven Example](https://github.com/sqlex/maven-example) 了解 SqlEx 的基本用法. 另外框架也对 `SpringBoot` 做了集成, 可以访问 [Spring Example](https://github.com/sqlex/spring-example) 了解具体集成的方法.
