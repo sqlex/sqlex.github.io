@@ -1,9 +1,10 @@
 # 快速开始
 
 ### SqlEx 是什么
-SqlEx (SQL extension) 是一个简单的DB helper.  
+
+SqlEx (SQL extension) 是一个简单的 DB helper.  
 从实际应用角度出发, 解决编程语言(Java)和关系型数据库之间对于类型和结构认知不匹配的问题.  
-主要思路是通过对数据库结构和SQL做语义分析, 依据分析得出的结果, 生成对应的类型. 提供`强类型安全`的编程体验.  
+主要思路是通过对数据库结构和 SQL 做语义分析, 依据分析得出的结果, 生成对应的类型. 提供`强类型安全`的编程体验.  
 将大部分错误从`运行时`前推到`编译时`/从`编译时`前推到`编辑时`, 保证错误写法有提示, 错误写法无法编译通过, 能编译通过进运行环境的程序不会出现数据库结构/类型错误.
 
 ### 支持范围
@@ -12,7 +13,7 @@ SqlEx (SQL extension) 是一个简单的DB helper.
 - Gradle >= 6
 - Maven >= 3
 - IDEA 版本 >= 2021.1
-- 目前数据库只支持MySQL
+- 目前数据库只支持 MySQL
 
 ### IDEA 插件安装
 
@@ -129,9 +130,9 @@ findAll() {
 ![image](_media/quick-start/method.png)  
 很容易理解, 方法名称叫 `findAll`, SQL 为 `select * from perosn`, 该方法的作用就是查询出 `person` 表中所有的行.
 
-### 在Java中使用DAO方法
+### 在 Java 中使用 DAO 方法
 
-经过上面的步骤, SqlEx 部分的代码已经全部完成. 现在我们编写 MainClass, 来调用SqlEx写的方法, 做数据库访问.
+经过上面的步骤, SqlEx 部分的代码已经全部完成. 现在我们编写 MainClass, 来调用 SqlEx 写的方法, 做数据库访问.
 
 ```java
 package me.danwi.sqlex.example;
@@ -175,6 +176,6 @@ public class Main {
 
 通过上面一个 "无用且蛋疼" 的例子, 简单介绍了 SqlEx 的设计.
 
-你可以根据自己实际的项目需求, 创建多个迁移脚本(如001-add-age-to-person.sqls), 或者创建一个复杂的 `join`/`groupby` 查询. 体验一下 SqlEx 框架自动(`分析`/`生成`/`强类型安全`)的魅力.
+你可以根据自己实际的项目需求, 创建多个迁移脚本(如 001-add-age-to-person.sqls), 或者创建一个复杂的 `join`/`groupby` 查询. 体验一下 SqlEx 框架自动(`分析`/`生成`/`强类型安全`)的魅力.
 
-也可以访问 [Gradle Example](https://github.com/sqlex/gradle-example), [Maven Example](https://github.com/sqlex/maven-example) 学习 SqlEx 的基本用法. 另外框架也对SpringBoot做了集成, 可以访问 [Spring Example](https://github.com/sqlex/spring-example) 了解具体集成的方法.
+也可以访问 [Gradle Example](https://github.com/sqlex/gradle-example), [Maven Example](https://github.com/sqlex/maven-example) 学习 SqlEx 的基本用法. 另外框架也对 SpringBoot 做了集成, 可以访问 [Spring Example](https://github.com/sqlex/spring-example) 了解具体集成的方法.
