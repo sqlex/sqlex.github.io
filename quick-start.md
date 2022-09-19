@@ -172,6 +172,35 @@ public class Main {
 
 上述的 `Repository`/`PersonDao`/`PersonDao.FindAllResult` 都由框架自动生成, 其中 `FindAllResult` 类的属性, 通过结合数据库结构定义, 然后分析 SQL 语句得出.
 
+### Fluent API(单表 API)
+
+`SqlEx Method`做数据库访问的方式, 比较适合**复杂的 SQL 查询**(比如: 多表 join, group by 等). 而简单的` 增删改查` 可以通过 `Fluent API` 来操作.
+
+```java
+//获取表操作对象的实例
+PersonTable personTable = factory.getInstance(PersonTable.class);
+
+//select * from person
+List<Person> persons = personTable.select().find();
+
+//select * from person where name like 'sqlex'
+persons = personTable.select().where(PersonTable.Name.like(Expression.arg("sqlex"))).find();
+
+//select * from person where id = ?
+Person person = personTable.findById(1);
+
+//select * from person where id > 1
+persons = personTable.select().where(PersonTable.Name.gt(Expression.arg(1))).find();
+
+//update person set name = 'sqlex' where id = 1
+long affectedRows = personTable.update().setName("sqlex").where(PersonTable.Id.eq(Expression.arg(1))).execute();
+
+//delete... insert...
+
+```
+
+针对 `kotlin` 语言, SqlEx 提供了部分语法糖, 能让 `where` 方法中的条件表达式写起来更加优雅.
+
 ### 总结
 
 通过上面一个 "无用且蛋疼" 的例子, 简单介绍了 SqlEx 的设计.
