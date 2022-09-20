@@ -18,7 +18,7 @@ SqlEx (SQL extension) 是一个简单的 DB helper.
 ### IDEA 插件安装
 
 SqlEx 的编辑体验**严重**依赖于 IDEA 插件, 插件提供了诸如 `智能提示`,`错误感知` 等功能.  
-插件可以在 **IDEA 内置插件管理器**(搜索sqlex) 或者 [官方插件市场](https://plugins.jetbrains.com/plugin/19025-sqlex) 下载安装.
+插件可以在 **IDEA 内置插件管理器**(搜索 sqlex) 或者 [官方插件市场](https://plugins.jetbrains.com/plugin/19025-sqlex) 下载安装.
 
 **!!强烈建议先安装 IDEA 插件!!**
 
@@ -125,10 +125,18 @@ findAll() {
     select *
     from person
 }
+
+findByName(name:String) {
+    select id
+    from person
+    where name like concat('%', :name, '%')
+}
 ```
 
 ![image](_media/quick-start/method.png)  
-很容易理解, 方法名称叫 `findAll`, SQL 为 `select * from perosn`, 该方法的作用就是查询出 `person` 表中所有的行.
+很容易理解.  
+第一个方法名叫 `findAll`, SQL 为 `select * from perosn`, 该方法的作用就是查询出 `person` 表中所有的行.  
+第二个方法名叫 `findByName`, SQL 为 `select * from person where name like concat('%',?,'%')`, 模糊匹配查找出 id.
 
 ### 在 Java 中使用 DAO 方法
 
@@ -156,21 +164,28 @@ public class Main {
         //检查数据库结构的一致性
         factory.check();
 
-        //获取Dao
+        //获取Dao实例
         PersonDao personDao = factory.getInstance(PersonDao.class); //自动生成的PersonDao类
 
-        //查询数据
+        //查询所有的person数据
         List<PersonDao.FindAllResult> results = personDao.findAll(); //自动生成的FindAllResult结果类
         if (!results.isEmpty()) {
-            System.out.println(results.get(0).getName());
+            System.out.println(results.get(0).getId()); //整型
+            System.out.println(results.get(0).getName()); //字符串
         }
+
+        //根据名称查询id集合
+        List<Integer> idList = personDao.findByName("sqlex"); // [1,3,4,5,6.....]
     }
 }
 ```
 
-如上代码, 其中 `me.danwi.sqlex.example.dao.Repository` 类型代表了该 Repository, 其上有 Repository 的元信息. 使用该类型作为参数创建一个 `DaoFactory`. 可以使用该工厂去实例化数据访问对象. 我们这里创建了一个 `PersonDao` 的实例, 然后调用我们自己编写的 `findAll` 方法, 获取到一个 `PersonDao.FindAllResult` 的列表, 这个列表就是查询结果.
+如上代码所示, 首先创建了一个 `DaoFactory` 实例, 紧接着, 我们通过工厂实例化了一个 `PersonDao`. 然后就可以调用这个 `PersonDao` 上我们编写的方法来查询数据库了.
 
-上述的 `Repository`/`PersonDao`/`PersonDao.FindAllResult` 都由框架自动生成, 其中 `FindAllResult` 类的属性, 通过结合数据库结构定义, 然后分析 SQL 语句得出.
+首先我们调用了 `findAll` 方法, 返回类型是 `List<PersonDao.FindAllResult>`, `FindAllResult` 我们并没有定义, 是框架依据 SQL 分析生成的. 它包含了两个属性 `id(Integer)` `name(String)`.  
+然后我们调用了 `findByName` 方法, 并传入了一个参数. 其返回结果是匹配到的 `person.id`, 返回类型是 `List<Integer>`, 因为只有一列, 所以没有必要生成一个实体类来映射了, 直接就是 `Integer` 的集合即可.
+
+代码中 `Repository`/`PersonDao`/`PersonDao.FindAllResult`... 等类型均由框架自动生成.
 
 ### Fluent API(单表 API)
 
@@ -178,21 +193,21 @@ public class Main {
 
 ```java
 //获取表操作对象的实例
-PersonTable personTable = factory.getInstance(PersonTable.class);
+PersonTable personTable = factory.getInstance(PersonTable.class); //PersonTable由框架自动生成
 
-//select * from person
-List<Person> persons = personTable.select().find();
+//等效SQL: select * from person
+List<Person> persons = personTable.select().find(); //Person由框架自动生成
 
-//select * from person where name like 'sqlex'
+//等效SQL: select * from person where name like 'sqlex'
 persons = personTable.select().where(PersonTable.Name.like(Expression.arg("sqlex"))).find();
 
-//select * from person where id = ?
+//等效SQL: select * from person where id = ?
 Person person = personTable.findById(1);
 
-//select * from person where id > 1
+//等效SQL: select * from person where id > 1
 persons = personTable.select().where(PersonTable.Name.gt(Expression.arg(1))).find();
 
-//update person set name = 'sqlex' where id = 1
+//等效SQL: update person set name = 'sqlex' where id = 1
 long affectedRows = personTable.update().setName("sqlex").where(PersonTable.Id.eq(Expression.arg(1))).execute();
 
 //delete... insert...
