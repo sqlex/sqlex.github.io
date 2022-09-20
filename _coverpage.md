@@ -6,5 +6,5 @@
 - 易用, 保证 80% 需求的易用/优雅实现
 - 正确, 强类型, 强模式, 编译时安全保证
 
-[GitHub](https://github.com/sqlex)
+[GitHub](https://github.com/sqlex/sqlex)
 [快速开始](quick-start.md)
